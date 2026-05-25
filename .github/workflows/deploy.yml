@@ -1,11 +1,59 @@
-name: Build & Deploy
+name: CI
 
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-  build-and-deploy:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd backend && npm ci
+          cd ../frontend && npm ci
+
+      - name: Compile TypeSpec → OpenAPI
+        run: npx tsp compile main.tsp
+
+      - name: Typecheck backend
+        run: npx tsc
+        working-directory: backend
+
+      - name: Start servers
+        run: |
+          cd backend && nohup npx tsx src/main.ts > /tmp/backend.log 2>&1 &
+          cd ../frontend && nohup npx vite --port 5173 > /tmp/frontend.log 2>&1 &
+
+      - name: Wait for servers
+        run: |
+          npx wait-on http://localhost:3001 http://localhost:5173 --timeout 30000
+
+      - name: Run e2e tests
+        run: npm run test:e2e
+        env:
+          CI: true
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: e2e/playwright-report/
+
+  docker:
+    needs: validate
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -25,13 +73,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          push: true
+          push: ${{ github.ref == 'refs/heads/main' }}
           tags: |
             ghcr.io/${{ github.repository }}:latest
             ghcr.io/${{ github.repository }}:${{ github.sha }}
-
-      - name: Trigger Render deploy
-        env:
-          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-        run: |
-          curl -X POST "$RENDER_DEPLOY_HOOK_URL"

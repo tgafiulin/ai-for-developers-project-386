@@ -20,7 +20,8 @@ Output: `tsp-output/schema/openapi.yaml`
 - Only edit `main.tsp` and `tspconfig.yaml`; never edit `tsp-output/` (generated) or `.github/workflows/hexlet-check.yml` (Hexlet CI — do not delete/edit/rename)
 - API version is managed in `package.json` (`"version": "0.1.0"`) — the OpenAPI output gets `0.0.0` from the compiler default
 - The `packageManager` field pins npm 11.15.0 — use `npm install` (not `yarn`/`pnpm`)
-- No test, lint, or typecheck scripts are configured
+- Test script: `npm run test:e2e` — runs Playwright in `e2e/`
+- CI pipeline (`.github/workflows/deploy.yml`): compiles TypeSpec, typechecks backend, starts servers, runs e2e tests, builds Docker image → pushes to GHCR (no Render deployment)
 
 ## Frontend (`frontend/`)
 

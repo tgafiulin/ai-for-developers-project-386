@@ -37,8 +37,12 @@ app.get('/availability', getAvailableSlots);
 
 const publicDir = path.resolve(__dirname, '..', 'public');
 app.use(express.static(publicDir));
-app.get('*', (_req, res) => {
-  res.sendFile(path.join(publicDir, 'index.html'));
+app.use((req, res, next) => {
+  if (req.method === 'GET') {
+    res.sendFile(path.join(publicDir, 'index.html'));
+  } else {
+    next();
+  }
 });
 
 const server = app.listen(PORT, () => {
