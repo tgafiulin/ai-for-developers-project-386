@@ -25,6 +25,11 @@
     "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4.3.0"
   },
+  "overrides": {
+    "openapi-typescript": {
+      "typescript": "6.0.3"
+    }
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@stoplight/prism-cli": "^5.15.10",
