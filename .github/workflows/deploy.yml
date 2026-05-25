@@ -34,7 +34,7 @@ jobs:
       - name: Run e2e tests
         run: |
           node backend/dist/main.js &
-          npx --prefix frontend vite --port 5173 --host &
+          cd frontend && npx vite --port 5173 --host &
           npx wait-on tcp:3001 tcp:5173 --timeout 30000
           npm run test:e2e
         env:
