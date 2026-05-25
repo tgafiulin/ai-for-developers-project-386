@@ -42,23 +42,27 @@ export default function EventTypesPage() {
   }
 
   async function handleSubmit() {
-    if (editingId) {
-      const updated = await api<EventType>(`/event-types/${editingId}`, {
-        method: 'PATCH',
-        body: JSON.stringify(form),
-      })
-      setEventTypes((prev) => prev.map((e) => (e.id === editingId ? updated : e)))
-      toast('Event type updated')
-    } else {
-      const created = await api<EventType>('/event-types', {
-        method: 'POST',
-        body: JSON.stringify(form),
-      })
-      setEventTypes((prev) => [...prev, created])
-      toast('Event type created')
+    try {
+      if (editingId) {
+        const updated = await api<EventType>(`/event-types/${editingId}`, {
+          method: 'PATCH',
+          body: JSON.stringify(form),
+        })
+        setEventTypes((prev) => prev.map((e) => (e.id === editingId ? updated : e)))
+        toast('Event type updated')
+      } else {
+        const created = await api<EventType>('/event-types', {
+          method: 'POST',
+          body: JSON.stringify(form),
+        })
+        setEventTypes((prev) => [...prev, created])
+        toast('Event type created')
+      }
+      resetForm()
+      setOpen(false)
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Failed to save event type')
     }
-    resetForm()
-    setOpen(false)
   }
 
   function handleEdit(et: EventType) {
