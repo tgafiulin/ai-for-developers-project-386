@@ -34,5 +34,32 @@ npm run build     # tsc -b && vite build — production output to dist/
 - React 19 + TypeScript 6 + Vite 8 + Tailwind CSS 4 + shadcn/ui (Radix Nova preset)
 - Types auto-generated from OpenAPI spec: `npm run gen-types` (runs `openapi-typescript`)
 - Pages at `src/pages/`: `EventTypesPage`, `BookingsPage`, `AvailabilityPage`
-- API client at `src/lib/api.ts` calls `VITE_API_URL` (default `http://localhost:4010`)
+- API client at `src/lib/api.ts` calls `VITE_API_URL` (default `http://localhost:3001`)
 - Layout at `src/components/Layout.tsx` with sidebar nav
+- `.env` file sets `VITE_API_URL=http://localhost:3001` (real backend)
+
+## Backend (`backend/`)
+
+```bash
+cd backend
+./dev.sh          # start the server (port 3001)
+```
+
+### Manual run (after compile)
+
+```bash
+cd backend
+export PATH="/tmp/node-v22.14.0-linux-x64/bin:$PATH"   # WSL Node.js
+node dist/main.js
+```
+
+- Express 5 + TypeScript 6, in-memory storage
+- `src/main.ts` — entry point, routing, CORS
+- `src/handlers.ts` — request handlers for all 9 endpoints
+- `src/store.ts` — in-memory store (Map-based)
+- `src/availability.ts` — slot generation (09:00–17:00 UTC, step = durationMinutes), overlap detection
+- `src/models.ts` — TypeScript interfaces matching OpenAPI spec
+- Conflict detection returns **409** on overlapping bookings
+- 14-day window enforced on availability queries
+- No DB — data resets on restart
+- Compile: `node ./node_modules/typescript/bin/tsc` (outputs to `dist/`)

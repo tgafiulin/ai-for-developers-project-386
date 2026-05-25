@@ -50,14 +50,18 @@ export default function BookingsPage() {
   }, [])
 
   async function handleSubmit() {
-    const created = await api<Booking>('/bookings', {
-      method: 'POST',
-      body: JSON.stringify(form),
-    })
-    setBookings((prev) => [...prev, created])
-    setForm({ eventTypeId: '', guestEmail: '', guestName: '', startTime: '', endTime: '' })
-    setOpen(false)
-    toast('Booking created')
+    try {
+      const created = await api<Booking>('/bookings', {
+        method: 'POST',
+        body: JSON.stringify(form),
+      })
+      setBookings((prev) => [...prev, created])
+      setForm({ eventTypeId: '', guestEmail: '', guestName: '', startTime: '', endTime: '' })
+      setOpen(false)
+      toast('Booking created')
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Failed to create booking')
+    }
   }
 
   return (
