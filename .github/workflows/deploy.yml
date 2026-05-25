@@ -31,10 +31,13 @@ jobs:
         run: npx tsc
         working-directory: backend
 
-      - name: Start servers
-        run: |
-          cd backend && nohup npx tsx src/main.ts > /tmp/backend.log 2>&1 &
-          cd ../frontend && nohup npx vite --port 5173 > /tmp/frontend.log 2>&1 &
+      - name: Start backend
+        working-directory: backend
+        run: nohup npx tsx src/main.ts > /tmp/backend.log 2>&1 &
+
+      - name: Start frontend
+        working-directory: frontend
+        run: nohup npx vite --port 5173 > /tmp/frontend.log 2>&1 &
 
       - name: Wait for servers
         run: |
