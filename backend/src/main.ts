@@ -1,3 +1,5 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
 import express from 'express';
 import cors from 'cors';
 import {
@@ -11,6 +13,10 @@ import {
   createBooking,
   getAvailableSlots,
 } from './handlers.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const publicDir = path.resolve(__dirname, '..', 'public');
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '3001', 10);
@@ -29,6 +35,17 @@ app.get('/bookings/:id', getBooking);
 app.post('/bookings', createBooking);
 
 app.get('/availability', getAvailableSlots);
+
+app.use(express.static(publicDir));
+app.use((req, res, next) => {
+  if (req.method === 'GET' || req.method === 'HEAD') {
+    res.sendFile(path.join(publicDir, 'index.html'), (err) => {
+      if (err) next();
+    });
+    return;
+  }
+  next();
+});
 
 const server = app.listen(PORT, () => {
   console.log(`Calendar Booking API running on http://localhost:${PORT}`);
